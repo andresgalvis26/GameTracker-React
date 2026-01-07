@@ -20,7 +20,7 @@ app.get('/games', async (req, res) => {
 
 // 2. Crear un nuevo juego
 app.post('/games', async (req, res) => {
-    const { title, platform, status, rating, imageUrl, description } = req.body;
+    const { title, platform, status, rating, imageUrl, description, targetYear } = req.body;
     
     const newGame = await prisma.game.create({
         data: { 
@@ -29,14 +29,36 @@ app.post('/games', async (req, res) => {
             status, 
             rating: parseInt(rating) || 0,
             imageUrl: imageUrl || null,
-            description: description || null
+            description: description || null,
+            targetYear: targetYear ? parseInt(targetYear) : null
         }
     });
 
     res.json(newGame);
 });
 
-// 3. Eliminar juego 
+// 3. Actualizar un juego existente
+app.put('/games/:id', async (req, res) => {
+    const { id } = req.params;
+    const { title, platform, status, rating, imageUrl, description, targetYear } = req.body;
+    
+    const updatedGame = await prisma.game.update({
+        where: { id: parseInt(id) },
+        data: { 
+            title, 
+            platform, 
+            status, 
+            rating: parseInt(rating) || 0,
+            imageUrl: imageUrl || null,
+            description: description || null,
+            targetYear: targetYear ? parseInt(targetYear) : null
+        }
+    });
+
+    res.json(updatedGame);
+});
+
+// 4. Eliminar juego 
 app.delete('/games/:id', async (req, res) => {
     const { id } = req.params;
 

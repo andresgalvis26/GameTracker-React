@@ -18,5 +18,6 @@ model Game {
   rating      Int?     // Opcional: 1 a 10
   imageUrl    String?  // URL de la imagen del juego
   description String?  // Resumen o descripción del juego
+  targetYear  Int?     // Año objetivo para Backlog o año de completado
   createdAt   DateTime @default(now())
 }

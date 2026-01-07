@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-const GameCard = ({ game, onDelete, onClick }) => {
+const GameCard = ({ game, onDelete, onClick, onEdit }) => {
     const getStatusColor = (status) => {
         switch (status) {
             case 'Jugando': return 'bg-green-500';
@@ -124,23 +124,35 @@ const GameCard = ({ game, onDelete, onClick }) => {
                     <h3 className="font-bold text-lg text-white leading-tight flex-1 mr-2">
                         {game.title}
                     </h3>
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(game.id);
-                        }}
-                        className="text-red-400 hover:text-red-300 transition-colors text-xl"
-                        title="Eliminar juego"
-                    >
-                        🗑️
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit(game);
+                            }}
+                            className="text-blue-400 hover:text-blue-300 transition-colors text-lg"
+                            title="Editar juego"
+                        >
+                            ✏️
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(game.id);
+                            }}
+                            className="text-red-400 hover:text-red-300 transition-colors text-lg"
+                            title="Eliminar juego"
+                        >
+                            🗑️
+                        </button>
+                    </div>
                 </div>
 
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-sm mb-3">
                     <div className="flex items-center gap-2">
                         {/* Chip de plataforma con color específico */}
                         <span
-                            className={`px-4 py-1 rounded-full text-xs font-semibold border ${getPlatformChip(game.platform).bg} ${getPlatformChip(game.platform).text} ${getPlatformChip(game.platform).border}`}
+                            className={`px-2 py-1 rounded-full text-xs font-semibold border ${getPlatformChip(game.platform).bg} ${getPlatformChip(game.platform).text} ${getPlatformChip(game.platform).border}`}
                         >
                             {game.platform}
                         </span>
@@ -150,6 +162,21 @@ const GameCard = ({ game, onDelete, onClick }) => {
                         {new Date(game.createdAt).toLocaleDateString('es-ES')}
                     </div>
                 </div>
+
+                {/* Información del año según el estado */}
+                {game.targetYear && (
+                    <div className="flex items-center justify-center mb-3">
+                        <div className={`px-3 py-1 rounded-lg text-xs font-medium ${game.status === 'Completado'
+                            ? 'bg-green-100 text-green-800 border border-green-200'
+                            : 'bg-blue-100 text-blue-800 border border-blue-200'
+                            }`}>
+                            {game.status === 'Completado'
+                                ? `✅ Completado en ${game.targetYear}`
+                                : `🎯 Objetivo: ${game.targetYear}`
+                            }
+                        </div>
+                    </div>
+                )}
 
                 {/* Barra de progreso visual si está jugando */}
                 {game.status === 'Jugando' && (
@@ -176,10 +203,12 @@ GameCard.propTypes = {
         rating: PropTypes.number,
         imageUrl: PropTypes.string,
         description: PropTypes.string,
+        targetYear: PropTypes.number,
         createdAt: PropTypes.string.isRequired,
     }).isRequired,
     onDelete: PropTypes.func.isRequired,
     onClick: PropTypes.func.isRequired,
+    onEdit: PropTypes.func.isRequired,
 };
 
 export default GameCard;
