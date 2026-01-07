@@ -20,14 +20,15 @@ app.get('/games', async (req, res) => {
 
 // 2. Crear un nuevo juego
 app.post('/games', async (req, res) => {
-    const { title, platform, status, rating, imageUrl, description, targetYear } = req.body;
+    const { title, platform, pcStore, status, rating, imageUrl, description, targetYear } = req.body;
     
     const newGame = await prisma.game.create({
         data: { 
             title, 
             platform, 
+            pcStore: platform === 'PC' ? (pcStore || null) : null,
             status, 
-            rating: parseInt(rating) || 0,
+            rating: rating ? parseFloat(rating) : null,
             imageUrl: imageUrl || null,
             description: description || null,
             targetYear: targetYear ? parseInt(targetYear) : null
@@ -40,15 +41,16 @@ app.post('/games', async (req, res) => {
 // 3. Actualizar un juego existente
 app.put('/games/:id', async (req, res) => {
     const { id } = req.params;
-    const { title, platform, status, rating, imageUrl, description, targetYear } = req.body;
+    const { title, platform, pcStore, status, rating, imageUrl, description, targetYear } = req.body;
     
     const updatedGame = await prisma.game.update({
         where: { id: parseInt(id) },
         data: { 
             title, 
             platform, 
+            pcStore: platform === 'PC' ? (pcStore || null) : null,
             status, 
-            rating: parseInt(rating) || 0,
+            rating: rating ? parseFloat(rating) : null,
             imageUrl: imageUrl || null,
             description: description || null,
             targetYear: targetYear ? parseInt(targetYear) : null

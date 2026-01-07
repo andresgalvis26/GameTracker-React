@@ -112,7 +112,7 @@ const GameCard = ({ game, onDelete, onClick, onEdit }) => {
                 {game.rating > 0 && (
                     <div className="absolute top-3 right-3 bg-black bg-opacity-70 px-2 py-1 rounded-lg">
                         <span className={`font-bold ${getRatingColor(game.rating)}`}>
-                            ⭐ {game.rating}/10
+                            ⭐ {Number(game.rating).toFixed(1)}/10
                         </span>
                     </div>
                 )}
@@ -149,13 +149,20 @@ const GameCard = ({ game, onDelete, onClick, onEdit }) => {
                 </div>
 
                 <div className="flex items-center justify-between text-sm mb-3">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                         {/* Chip de plataforma con color específico */}
                         <span
                             className={`px-2 py-1 rounded-full text-xs font-semibold border ${getPlatformChip(game.platform).bg} ${getPlatformChip(game.platform).text} ${getPlatformChip(game.platform).border}`}
                         >
                             {game.platform}
                         </span>
+                        
+                        {/* Chip de tienda PC si aplica */}
+                        {game.platform === 'PC' && game.pcStore && (
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-200 border border-gray-600">
+                                🛒 {game.pcStore}
+                            </span>
+                        )}
                     </div>
 
                     <div className="text-gray-400 text-xs">
@@ -179,13 +186,16 @@ const GameCard = ({ game, onDelete, onClick, onEdit }) => {
                 )}
 
                 {/* Barra de progreso visual si está jugando */}
-                {game.status === 'Jugando' && (
+                {game.status === 'Jugando' && game.rating && (
                     <div className="mt-3">
                         <div className="bg-gray-700 rounded-full h-2">
                             <div
                                 className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                                style={{ width: `${(game.rating || 0) * 10}%` }}
+                                style={{ width: `${(Number(game.rating) || 0) * 10}%` }}
                             ></div>
+                        </div>
+                        <div className="text-xs text-gray-400 mt-1 text-center">
+                            Progreso: {Number(game.rating).toFixed(1)}/10
                         </div>
                     </div>
                 )}
@@ -199,6 +209,7 @@ GameCard.propTypes = {
         id: PropTypes.number.isRequired,
         title: PropTypes.string.isRequired,
         platform: PropTypes.string.isRequired,
+        pcStore: PropTypes.string,
         status: PropTypes.string.isRequired,
         rating: PropTypes.number,
         imageUrl: PropTypes.string,

@@ -14,8 +14,9 @@ model Game {
   id          Int      @id @default(autoincrement())
   title       String
   platform    String   // Ej: PC, Switch, PS5
+  pcStore     String?  // Tienda de PC: Steam, Epic Games, etc. (solo si platform es PC)
   status      String   // Ej: Jugando, Completado, Backlog
-  rating      Int?     // Opcional: 1 a 10
+  rating      Float?   // Opcional: 1.0 a 10.0 (permite decimales)
   imageUrl    String?  // URL de la imagen del juego
   description String?  // Resumen o descripción del juego
   targetYear  Int?     // Año objetivo para Backlog o año de completado

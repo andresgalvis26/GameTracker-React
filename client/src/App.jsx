@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 
 function App() {
     const [games, setGames] = useState([]);
-    const [form, setForm] = useState({ title: '', platform: 'PC', status: 'Backlog', rating: 0, imageUrl: '', description: '', targetYear: '' });
+    const [form, setForm] = useState({ title: '', platform: 'PC', pcStore: '', status: 'Backlog', rating: 0, imageUrl: '', description: '', targetYear: '' });
     const [selectedGame, setSelectedGame] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -64,7 +64,7 @@ function App() {
             }
             
             // Limpiar formulario y estados
-            setForm({ title: '', platform: 'PC', status: 'Backlog', rating: 0, imageUrl: '', description: '', targetYear: '' });
+            setForm({ title: '', platform: 'PC', pcStore: '', status: 'Backlog', rating: 0, imageUrl: '', description: '', targetYear: '' });
             setIsEditing(false);
             setEditingId(null);
             fetchGames();
@@ -155,6 +155,7 @@ function App() {
         setForm({
             title: game.title,
             platform: game.platform,
+            pcStore: game.pcStore || '',
             status: game.status,
             rating: game.rating || 0,
             imageUrl: game.imageUrl || '',
@@ -169,7 +170,7 @@ function App() {
     };
 
     const handleCancelEdit = () => {
-        setForm({ title: '', platform: 'PC', status: 'Backlog', rating: 0, imageUrl: '', description: '', targetYear: '' });
+        setForm({ title: '', platform: 'PC', pcStore: '', status: 'Backlog', rating: 0, imageUrl: '', description: '', targetYear: '' });
         setIsEditing(false);
         setEditingId(null);
     };
@@ -281,7 +282,14 @@ function App() {
                                     <select
                                         className="p-2 rounded bg-gray-700 w-1/3"
                                         value={form.platform}
-                                        onChange={e => setForm({ ...form, platform: e.target.value })}
+                                        onChange={e => {
+                                            setForm({ 
+                                                ...form, 
+                                                platform: e.target.value,
+                                                // Limpiar pcStore si no es PC
+                                                pcStore: e.target.value === 'PC' ? form.pcStore : ''
+                                            });
+                                        }}
                                     >
                                         <option>PC</option>
                                         <option>Switch</option>
@@ -300,16 +308,68 @@ function App() {
                                         <option>Jugando</option>
                                         <option>Completado</option>
                                     </select>
-                                    <input
-                                        type="number"
-                                        placeholder="Rate (1-10)"
-                                        className="p-2 rounded bg-gray-700 w-1/3"
-                                        max="10"
-                                        min="0"
-                                        value={form.rating}
-                                        onChange={e => setForm({ ...form, rating: e.target.value })}
-                                    />
+                                    <div className="flex flex-col w-1/3">
+                                        <label className="text-xs text-gray-400 mb-1">Calificación</label>
+                                        <input
+                                            type="number"
+                                            placeholder="Ej: 8.5"
+                                            className="p-2 rounded bg-gray-700 text-white"
+                                            max="10"
+                                            min="0"
+                                            step="0.1"
+                                            value={form.rating}
+                                            onChange={e => {
+                                                const value = e.target.value;
+                                                // Validar que no exceda 10 y tenga máximo 1 decimal
+                                                if (value === '' || (parseFloat(value) <= 10 && /^\d+\.?\d{0,1}$/.test(value))) {
+                                                    setForm({ ...form, rating: value });
+                                                }
+                                            }}
+                                        />
+                                        {form.rating && (
+                                            <div className="text-xs mt-1 text-center">
+                                                <span className={`${
+                                                    form.rating >= 8 ? 'text-green-400' :
+                                                    form.rating >= 6 ? 'text-yellow-400' :
+                                                    form.rating >= 4 ? 'text-orange-400' :
+                                                    'text-red-400'
+                                                }`}>
+                                                    {form.rating >= 9 ? '🌟 Excelente' :
+                                                     form.rating >= 8 ? '✨ Muy Bueno' :
+                                                     form.rating >= 7 ? '👍 Bueno' :
+                                                     form.rating >= 6 ? '👌 Aceptable' :
+                                                     form.rating >= 4 ? '😐 Regular' : '👎 Malo'}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
+
+                                {/* Selector de tienda PC - solo si la plataforma es PC */}
+                                {form.platform === 'PC' && (
+                                    <div className="flex flex-col">
+                                        <label className="text-sm text-gray-400 mb-1">
+                                            🛒 Tienda o Plataforma de PC
+                                        </label>
+                                        <select
+                                            className="p-2 rounded bg-gray-700 text-white w-full"
+                                            value={form.pcStore}
+                                            onChange={e => setForm({ ...form, pcStore: e.target.value })}
+                                        >
+                                            <option value="">Selecciona la tienda</option>
+                                            <option value="Steam">🔥 Steam</option>
+                                            <option value="Epic Games">🎮 Epic Games Store</option>
+                                            <option value="GOG">🌟 GOG</option>
+                                            <option value="Origin/EA">🎯 Origin / EA App</option>
+                                            <option value="Ubisoft Connect">🏛️ Ubisoft Connect</option>
+                                            <option value="Battle.net">⚔️ Battle.net</option>
+                                            <option value="Microsoft Store">🏪 Microsoft Store</option>
+                                            <option value="Game Pass">🎮 Xbox Game Pass</option>
+                                            <option value="Itch.io">🎨 Itch.io</option>
+                                            <option value="Otra">🔧 Otra</option>
+                                        </select>
+                                    </div>
+                                )}
 
                                 {/* Selector de año dinámico */}
                                 <div className="flex flex-col">
@@ -414,14 +474,43 @@ function App() {
                                 <span className="text-gray-400">Plataforma:</span>
                                 <p className="text-white font-semibold">{selectedGame.platform}</p>
                             </div>
+                            {selectedGame.platform === 'PC' && selectedGame.pcStore && (
+                                <div>
+                                    <span className="text-gray-400">Tienda:</span>
+                                    <p className="text-white font-semibold flex items-center gap-2">
+                                        <span className="bg-gray-700 px-2 py-1 rounded text-xs">
+                                            🛒 {selectedGame.pcStore}
+                                        </span>
+                                    </p>
+                                </div>
+                            )}
                             <div>
                                 <span className="text-gray-400">Estado:</span>
                                 <p className="text-white font-semibold">{selectedGame.status}</p>
                             </div>
                             <div>
                                 <span className="text-gray-400">Puntuación:</span>
-                                <p className="text-white font-semibold">
-                                    {selectedGame.rating > 0 ? `${selectedGame.rating}/10` : 'Sin puntuar'}
+                                <p className="text-white font-semibold flex items-center gap-2">
+                                    {selectedGame.rating > 0 ? (
+                                        <>
+                                            <span className="text-yellow-400">⭐</span>
+                                            <span>{Number(selectedGame.rating).toFixed(1)}/10</span>
+                                            <span className={`px-2 py-1 rounded text-xs ${
+                                                selectedGame.rating >= 8 ? 'bg-green-600 text-white' :
+                                                selectedGame.rating >= 6 ? 'bg-yellow-600 text-white' :
+                                                selectedGame.rating >= 4 ? 'bg-orange-600 text-white' :
+                                                'bg-red-600 text-white'
+                                            }`}>
+                                                {selectedGame.rating >= 9 ? 'Excelente' :
+                                                 selectedGame.rating >= 8 ? 'Muy Bueno' :
+                                                 selectedGame.rating >= 7 ? 'Bueno' :
+                                                 selectedGame.rating >= 6 ? 'Aceptable' :
+                                                 selectedGame.rating >= 4 ? 'Regular' : 'Malo'}
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <span className="text-gray-500">Sin puntuar</span>
+                                    )}
                                 </p>
                             </div>
                             <div>
