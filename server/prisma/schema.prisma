@@ -1,0 +1,21 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Game {
+  id        Int      @id @default(autoincrement())
+  title     String
+  platform  String   // Ej: PC, Switch, PS5
+  status    String   // Ej: Jugando, Completado, Backlog
+  rating    Int?     // Opcional: 1 a 10
+  imageUrl  String?  // URL de la imagen del juego
+  createdAt DateTime @default(now())
+}
