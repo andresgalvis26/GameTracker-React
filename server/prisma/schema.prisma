@@ -11,11 +11,12 @@ datasource db {
 }
 
 model Game {
-  id        Int      @id @default(autoincrement())
-  title     String
-  platform  String   // Ej: PC, Switch, PS5
-  status    String   // Ej: Jugando, Completado, Backlog
-  rating    Int?     // Opcional: 1 a 10
-  imageUrl  String?  // URL de la imagen del juego
-  createdAt DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  title       String
+  platform    String   // Ej: PC, Switch, PS5
+  status      String   // Ej: Jugando, Completado, Backlog
+  rating      Int?     // Opcional: 1 a 10
+  imageUrl    String?  // URL de la imagen del juego
+  description String?  // Resumen o descripción del juego
+  createdAt   DateTime @default(now())
 }

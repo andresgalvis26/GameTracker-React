@@ -20,7 +20,7 @@ app.get('/games', async (req, res) => {
 
 // 2. Crear un nuevo juego
 app.post('/games', async (req, res) => {
-    const { title, platform, status, rating, imageUrl } = req.body;
+    const { title, platform, status, rating, imageUrl, description } = req.body;
     
     const newGame = await prisma.game.create({
         data: { 
@@ -28,7 +28,8 @@ app.post('/games', async (req, res) => {
             platform, 
             status, 
             rating: parseInt(rating) || 0,
-            imageUrl: imageUrl || null
+            imageUrl: imageUrl || null,
+            description: description || null
         }
     });
 

@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import GameCard from './components/GameCard';
+import Modal from './components/Modal';
+import Swal from 'sweetalert2';
 
 function App() {
   const [games, setGames] = useState([]);
-  const [form, setForm] = useState({ title: '', platform: 'PC', status: 'Backlog', rating: 0, imageUrl: '' });
+  const [form, setForm] = useState({ title: '', platform: 'PC', status: 'Backlog', rating: 0, imageUrl: '', description: '' });
+  const [selectedGame, setSelectedGame] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Cargar juegos al iniciar
   useEffect(() => {
@@ -19,13 +23,73 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     await axios.post('http://localhost:3000/games', form);
-    setForm({ title: '', platform: 'PC', status: 'Backlog', rating: 0, imageUrl: '' }); // Limpiar
+    setForm({ title: '', platform: 'PC', status: 'Backlog', rating: 0, imageUrl: '', description: '' }); // Limpiar
     fetchGames(); // Recargar lista
   };
 
-  const handleDelete = async (id) => {
-    await axios.delete(`http://localhost:3000/games/${id}`);
-    fetchGames();
+  const handleDelete = async (id, gameTitle) => {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Quieres eliminar "${gameTitle}" de tu colección?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      background: '#1f2937',
+      color: '#f9fafb',
+      customClass: {
+        popup: 'border border-gray-600',
+        title: 'text-white',
+        content: 'text-gray-300'
+      }
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`http://localhost:3000/games/${id}`);
+        fetchGames();
+        
+        Swal.fire({
+          title: '¡Eliminado!',
+          text: 'El juego ha sido eliminado de tu colección.',
+          icon: 'success',
+          confirmButtonColor: '#059669',
+          background: '#1f2937',
+          color: '#f9fafb',
+          customClass: {
+            popup: 'border border-gray-600',
+            title: 'text-white',
+            content: 'text-gray-300'
+          }
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo eliminar el juego. Inténtalo de nuevo.',
+          icon: 'error',
+          confirmButtonColor: '#dc2626',
+          background: '#1f2937',
+          color: '#f9fafb',
+          customClass: {
+            popup: 'border border-gray-600',
+            title: 'text-white',
+            content: 'text-gray-300'
+          }
+        });
+      }
+    }
+  };
+
+  const handleGameClick = (game) => {
+    setSelectedGame(game);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedGame(null);
   };
 
   return (
@@ -50,6 +114,12 @@ function App() {
               className="p-2 rounded bg-gray-700 text-white w-full"
               value={form.imageUrl}
               onChange={e => setForm({ ...form, imageUrl: e.target.value })}
+            />
+            <textarea
+              placeholder="Descripción o resumen del juego (opcional)"
+              className="p-2 rounded bg-gray-700 text-white w-full h-42 resize-none"
+              value={form.description}
+              onChange={e => setForm({ ...form, description: e.target.value })}
             />
             <div className="flex gap-2">
               <select
@@ -97,7 +167,8 @@ function App() {
               <GameCard 
                 key={game.id} 
                 game={game} 
-                onDelete={handleDelete}
+                onDelete={(id) => handleDelete(id, game.title)}
+                onClick={() => handleGameClick(game)}
               />
             ))}
           </div>
@@ -108,6 +179,71 @@ function App() {
             <p className="text-gray-500">¡Agrega tu primer juego arriba!</p>
           </div>
         )}
+
+        {/* Modal para mostrar detalles del juego */}
+        <Modal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          title={selectedGame?.title || 'Detalles del Juego'}
+        >
+          {selectedGame && (
+            <div className="space-y-6">
+              {/* Imagen del juego en el modal */}
+              {selectedGame.imageUrl && (
+                <div className="w-full h-full overflow-hidden rounded-lg bg-gray-700">
+                  <img 
+                    src={selectedGame.imageUrl}
+                    alt={selectedGame.title}
+                    className="w-full h-full object-fit"
+                    onError={(e) => e.target.style.display = 'none'}
+                  />
+                </div>
+              )}
+
+              {/* Información del juego */}
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-400">Plataforma:</span>
+                  <p className="text-white font-semibold">{selectedGame.platform}</p>
+                </div>
+                <div>
+                  <span className="text-gray-400">Estado:</span>
+                  <p className="text-white font-semibold">{selectedGame.status}</p>
+                </div>
+                <div>
+                  <span className="text-gray-400">Puntuación:</span>
+                  <p className="text-white font-semibold">
+                    {selectedGame.rating > 0 ? `${selectedGame.rating}/10` : 'Sin puntuar'}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-gray-400">Agregado:</span>
+                  <p className="text-white font-semibold">
+                    {new Date(selectedGame.createdAt).toLocaleDateString('es-ES')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Descripción */}
+              <div>
+                <h3 className="text-lg font-bold text-white mb-3">📝 Descripción</h3>
+                {selectedGame.description ? (
+                  <div className="bg-gray-700 rounded-lg p-4">
+                    <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
+                      {selectedGame.description}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-gray-700 rounded-lg p-4 text-center">
+                    <p className="text-gray-500 italic">
+                      No hay descripción disponible para este juego.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </Modal>
       </div>
     </div>
   );
