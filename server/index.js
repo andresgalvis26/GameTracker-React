@@ -20,7 +20,7 @@ app.get('/games', async (req, res) => {
 
 // 2. Crear un nuevo juego
 app.post('/games', async (req, res) => {
-    const { title, platform, pcStore, status, rating, imageUrl, description, targetYear } = req.body;
+    const { title, platform, pcStore, status, rating, imageUrl, description, targetYear, replayable } = req.body;
     
     const newGame = await prisma.game.create({
         data: { 
@@ -31,7 +31,8 @@ app.post('/games', async (req, res) => {
             rating: rating ? parseFloat(rating) : null,
             imageUrl: imageUrl || null,
             description: description || null,
-            targetYear: targetYear ? parseInt(targetYear) : null
+            targetYear: targetYear ? parseInt(targetYear) : null,
+            replayable: status === 'Completado' ? (replayable === 'true' || replayable === true) : null
         }
     });
 
@@ -41,7 +42,7 @@ app.post('/games', async (req, res) => {
 // 3. Actualizar un juego existente
 app.put('/games/:id', async (req, res) => {
     const { id } = req.params;
-    const { title, platform, pcStore, status, rating, imageUrl, description, targetYear } = req.body;
+    const { title, platform, pcStore, status, rating, imageUrl, description, targetYear, replayable } = req.body;
     
     const updatedGame = await prisma.game.update({
         where: { id: parseInt(id) },
@@ -53,7 +54,8 @@ app.put('/games/:id', async (req, res) => {
             rating: rating ? parseFloat(rating) : null,
             imageUrl: imageUrl || null,
             description: description || null,
-            targetYear: targetYear ? parseInt(targetYear) : null
+            targetYear: targetYear ? parseInt(targetYear) : null,
+            replayable: status === 'Completado' ? (replayable === 'true' || replayable === true) : null
         }
     });
 

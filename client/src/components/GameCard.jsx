@@ -10,18 +10,6 @@ const GameCard = ({ game, onDelete, onClick, onEdit }) => {
         }
     };
 
-    const getPlatformEmoji = (platform) => {
-        switch (platform) {
-            case 'PC': return '🖥️';
-            case 'Switch': return '🎮';
-            case 'PS5': return '🎯';
-            case 'PS4': return '🎪';
-            case 'Xbox One': return '🟢';
-            case 'Xbox 360': return '⚪';
-            default: return '🎲';
-        }
-    };
-
     const getPlatformChip = (platform) => {
         switch (platform) {
             case 'PC':
@@ -107,6 +95,13 @@ const GameCard = ({ game, onDelete, onClick, onEdit }) => {
                 <div className={`absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-bold text-white ${getStatusColor(game.status)}`}>
                     {game.status}
                 </div>
+
+                {/* Badge de rejugable - solo para juegos completados */}
+                {game.status === 'Completado' && game.replayable && (
+                    <div className="absolute top-12 left-3 bg-purple-600 px-2 py-1 rounded-full text-xs font-bold text-white">
+                        🔄 Rejugable
+                    </div>
+                )}
 
                 {/* Rating */}
                 {game.rating > 0 && (
@@ -215,6 +210,7 @@ GameCard.propTypes = {
         imageUrl: PropTypes.string,
         description: PropTypes.string,
         targetYear: PropTypes.number,
+        replayable: PropTypes.bool,
         createdAt: PropTypes.string.isRequired,
     }).isRequired,
     onDelete: PropTypes.func.isRequired,
