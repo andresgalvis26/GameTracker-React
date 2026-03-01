@@ -39,7 +39,7 @@ function App() {
 
     const fetchGames = async () => {
         // const res = await axios.get('http://localhost:3000/games');
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/games`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/games`);
         setGames(res.data);
     };
 
@@ -54,7 +54,7 @@ function App() {
         try {
             if (isEditing) {
                 // Actualizar juego existente
-                await axios.put(`${process.env.REACT_APP_API_URL}/games/${editingId}`, form);
+                await axios.put(`${import.meta.env.VITE_API_URL}/games/${editingId}`, form);
 
                 Swal.fire({
                     title: '¡Actualizado!',
@@ -71,7 +71,7 @@ function App() {
                 });
             } else {
                 // Crear nuevo juego
-                await axios.post(`${process.env.REACT_APP_API_URL}/games`, form);
+                await axios.post(`${import.meta.env.VITE_API_URL}/games`, form);
 
                 Swal.fire({
                     title: '¡Agregado!',
@@ -133,7 +133,7 @@ function App() {
 
         if (result.isConfirmed) {
             try {
-                await axios.delete(`${process.env.REACT_APP_API_URL}/games/${id}`);
+                await axios.delete(`${import.meta.env.VITE_API_URL}/games/${id}`);
                 fetchGames();
 
                 Swal.fire({
