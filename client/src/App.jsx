@@ -4,6 +4,7 @@ import GameCard from './components/GameCard';
 import Modal from './components/Modal';
 import Navbar from './components/Navbar';
 import Login from './components/Login';
+import Statistics from './components/Statistics';
 import Swal from 'sweetalert2';
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
     const [showFilters, setShowFilters] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(12);
+    const [activeView, setActiveView] = useState('collection'); // 'collection' or 'statistics'
 
     const fetchGames = async () => {
         const res = await axios.get('http://localhost:3000/games');
@@ -334,6 +336,7 @@ function App() {
             searchText: ''
         });
         setCurrentPage(1);
+        setActiveView('collection');
     };
 
     // Función para limpiar todos los filtros
@@ -351,6 +354,7 @@ function App() {
         setSortBy('createdAt');
         setSortOrder('desc');
         setCurrentPage(1);
+        setActiveView('collection');
     };
 
     // Calcular estadísticas para el navbar
@@ -406,11 +410,45 @@ function App() {
                 onLogout={handleLogout}
             />
 
+            {/* Navegación por tabs */}
+            <div className="bg-gray-800 border-b border-gray-700 sticky top-16 z-30">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex">
+                        <button
+                            onClick={() => {
+                                setActiveView('collection');
+                                setCurrentPage(1);
+                            }}
+                            className={`px-6 py-4 font-semibold text-sm transition-colors relative ${
+                                activeView === 'collection'
+                                    ? 'text-blue-400 border-b-2 border-blue-400'
+                                    : 'text-gray-400 hover:text-white'
+                            }`}
+                        >
+                            🎮 Mi Colección
+                        </button>
+                        <button
+                            onClick={() => setActiveView('statistics')}
+                            className={`px-6 py-4 font-semibold text-sm transition-colors relative ${
+                                activeView === 'statistics'
+                                    ? 'text-blue-400 border-b-2 border-blue-400'
+                                    : 'text-gray-400 hover:text-white'
+                            }`}
+                        >
+                            📊 Estadísticas
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             {/* Contenido principal */}
             <div className="text-white p-6 sm:p-8 lg:p-10">
                 <div className="max-w-7xl mx-auto">
-                    {/* Botón para abrir formulario */}
-                    <div className="flex justify-center mb-10">
+                    {activeView === 'collection' ? (
+                        <>
+                            {/* Vista de Colección */}
+                            {/* Botón para abrir formulario */}
+                            <div className="flex justify-center mb-10">
                         <button
                             onClick={handleOpenFormModal}
                             className="group relative px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-blue-500/25 hover:scale-105 flex items-center gap-3"
@@ -945,6 +983,34 @@ function App() {
                             <p className="text-gray-500 max-w-md mx-auto">
                                 ¡Comienza agregando tu primer juego usando el botón de arriba!
                             </p>
+                        </div>
+                    )}
+                        </>
+                    ) : (
+                        /* Vista de Estadísticas */
+                        <div className="space-y-6">
+                            <div className="text-center mb-8">
+                                <h2 className="text-3xl font-bold text-white mb-2">📊 Estadísticas de tu Colección</h2>
+                                <p className="text-gray-400">Analiza tus patrones de juego y progreso</p>
+                            </div>
+                            
+                            {games.length > 0 ? (
+                                <Statistics games={games} />
+                            ) : (
+                                <div className="text-center py-16">
+                                    <div className="text-6xl mb-4">📊</div>
+                                    <h3 className="text-2xl font-bold text-gray-400 mb-2">No hay datos para mostrar</h3>
+                                    <p className="text-gray-500 max-w-md mx-auto">
+                                        Agrega algunos juegos a tu colección para ver estadísticas detalladas.
+                                    </p>
+                                    <button
+                                        onClick={() => setActiveView('collection')}
+                                        className="mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors"
+                                    >
+                                        🎮 Ir a Mi Colección
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
