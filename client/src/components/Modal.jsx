@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 
-const Modal = ({ isOpen, onClose, title, children }) => {
+const Modal = ({ isOpen, onClose, title, children, showFooter = true }) => {
     // Cerrar modal con Escape
     useEffect(() => {
         const handleEscape = (e) => {
@@ -54,14 +54,16 @@ const Modal = ({ isOpen, onClose, title, children }) => {
                 </div>
 
                 {/* Footer opcional */}
-                <div className="flex justify-end gap-3 p-6 border-t border-gray-700 bg-gray-750">
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors font-medium"
-                    >
-                        Cerrar
-                    </button>
-                </div>
+                {showFooter && (
+                    <div className="flex justify-end gap-3 p-6 border-t border-gray-700 bg-gray-750">
+                        <button
+                            onClick={onClose}
+                            className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors font-medium"
+                        >
+                            Cerrar
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -72,6 +74,7 @@ Modal.propTypes = {
     onClose: PropTypes.func.isRequired,
     title: PropTypes.string.isRequired,
     children: PropTypes.node.isRequired,
+    showFooter: PropTypes.bool,
 };
 
 export default Modal;

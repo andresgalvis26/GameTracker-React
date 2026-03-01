@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
-const Navbar = ({ totalGames, gamesCompleted, gamesPlaying, gamesBacklog }) => {
+const Navbar = ({ totalGames, gamesCompleted, gamesPlaying, gamesBacklog, onLogout }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const getCompletionPercentage = () => {
@@ -98,6 +98,16 @@ const Navbar = ({ totalGames, gamesCompleted, gamesPlaying, gamesBacklog }) => {
                                 })}
                             </div>
                         </div>
+                        
+                        {/* Botón de logout */}
+                        <button
+                            onClick={onLogout}
+                            className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                            title="Cerrar sesión"
+                        >
+                            <span>🚪</span>
+                            Salir
+                        </button>
                     </div>
                 </div>
 
@@ -142,6 +152,20 @@ const Navbar = ({ totalGames, gamesCompleted, gamesPlaying, gamesBacklog }) => {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Botón de logout móvil */}
+                            <div className="p-3">
+                                <button
+                                    onClick={() => {
+                                        setIsMenuOpen(false);
+                                        onLogout();
+                                    }}
+                                    className="w-full bg-red-600 hover:bg-red-500 text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <span>🚪</span>
+                                    Cerrar Sesión
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -155,6 +179,7 @@ Navbar.propTypes = {
     gamesCompleted: PropTypes.number.isRequired,
     gamesPlaying: PropTypes.number.isRequired,
     gamesBacklog: PropTypes.number.isRequired,
+    onLogout: PropTypes.func.isRequired,
 };
 
 export default Navbar;
