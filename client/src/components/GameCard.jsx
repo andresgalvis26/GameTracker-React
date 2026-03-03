@@ -96,9 +96,17 @@ const GameCard = ({ game, onDelete, onClick, onEdit }) => {
                     {game.status}
                 </div>
 
+                {/* Badge de platinado - solo para juegos completados */}
+                {game.status === 'Completado' && game.platinated && (
+                    <div className="absolute top-12 left-3 bg-gradient-to-r from-yellow-400 to-yellow-600 px-2 py-1 rounded-full text-xs font-bold text-gray-900 shadow-lg border border-yellow-300">
+                        🏆 Platino
+                    </div>
+                )}
+
                 {/* Badge de rejugable - solo para juegos completados */}
                 {game.status === 'Completado' && game.replayable && (
-                    <div className="absolute top-12 left-3 bg-purple-600 px-2 py-1 rounded-full text-xs font-bold text-white">
+                    <div className={`absolute left-3 bg-purple-600 px-2 py-1 rounded-full text-xs font-bold text-white`}
+                         style={{ top: game.platinated ? '5.25rem' : '3rem' }}>
                         🔄 Rejugable
                     </div>
                 )}

@@ -21,5 +21,6 @@ model Game {
   description String?  // Resumen o descripción del juego
   targetYear  Int?     // Año objetivo para Backlog o año de completado
   replayable  Boolean? // Si está completado y vale la pena rejugar
+  platinated  Boolean? // Si el juego fue platinado (100% logros/trofeos)
   createdAt   DateTime @default(now())
 }

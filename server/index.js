@@ -10,17 +10,15 @@ app.use(express.json());
 
 // 1. Obtener todos los juegos
 app.get('/games', async (req, res) => {
-
     const games = await prisma.game.findMany({
         orderBy: { createdAt: 'desc' }
     });
-
     res.json(games);
 });
 
 // 2. Crear un nuevo juego
 app.post('/games', async (req, res) => {
-    const { title, platform, pcStore, status, rating, imageUrl, description, targetYear, replayable } = req.body;
+    const { title, platform, pcStore, status, rating, imageUrl, description, targetYear, replayable, platinated } = req.body;
     
     const newGame = await prisma.game.create({
         data: { 
@@ -32,17 +30,17 @@ app.post('/games', async (req, res) => {
             imageUrl: imageUrl || null,
             description: description || null,
             targetYear: targetYear ? parseInt(targetYear) : null,
-            replayable: status === 'Completado' ? (replayable === 'true' || replayable === true) : null
+            replayable: status === 'Completado' ? Boolean(replayable) : null,
+            platinated: status === 'Completado' ? Boolean(platinated) : null
         }
     });
-
     res.json(newGame);
 });
 
 // 3. Actualizar un juego existente
 app.put('/games/:id', async (req, res) => {
     const { id } = req.params;
-    const { title, platform, pcStore, status, rating, imageUrl, description, targetYear, replayable } = req.body;
+    const { title, platform, pcStore, status, rating, imageUrl, description, targetYear, replayable, platinated } = req.body;
     
     const updatedGame = await prisma.game.update({
         where: { id: parseInt(id) },
@@ -55,10 +53,10 @@ app.put('/games/:id', async (req, res) => {
             imageUrl: imageUrl || null,
             description: description || null,
             targetYear: targetYear ? parseInt(targetYear) : null,
-            replayable: status === 'Completado' ? (replayable === 'true' || replayable === true) : null
+            replayable: status === 'Completado' ? Boolean(replayable) : null,
+            platinated: status === 'Completado' ? Boolean(platinated) : null
         }
     });
-
     res.json(updatedGame);
 });
 

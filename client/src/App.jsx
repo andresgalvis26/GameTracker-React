@@ -9,10 +9,20 @@ import Swal from 'sweetalert2';
 
 function App() {
     // Estado de autenticación
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        // Verificar si hay una sesión guardada en localStorage
+        try {
+            const savedAuth = localStorage.getItem('isAuthenticated');
+            return savedAuth === 'true';
+        } catch (error) {
+            // Si localStorage no está disponible, retornar false
+            console.warn('localStorage no disponible:', error);
+            return false;
+        }
+    });
     
     const [games, setGames] = useState([]);
-    const [form, setForm] = useState({ title: '', platform: '', pcStore: '', status: '', rating: '', imageUrl: '', description: '', targetYear: '', replayable: false });
+    const [form, setForm] = useState({ title: '', platform: '', pcStore: '', status: '', rating: '', imageUrl: '', description: '', targetYear: '', replayable: false, platinated: false });
     const [selectedGame, setSelectedGame] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -38,7 +48,6 @@ function App() {
     const [activeView, setActiveView] = useState('collection'); // 'collection' or 'statistics'
 
     const fetchGames = async () => {
-        // const res = await axios.get('http://localhost:3000/games');
         const res = await axios.get(`${import.meta.env.VITE_API_URL}/games`);
         setGames(res.data);
     };
@@ -89,7 +98,7 @@ function App() {
             }
 
             // Limpiar formulario y estados
-            setForm({ title: '', platform: 'PC', pcStore: '', status: 'Backlog', rating: 0, imageUrl: '', description: '', targetYear: '' });
+            setForm({ title: '', platform: 'PC', pcStore: '', status: 'Backlog', rating: 0, imageUrl: '', description: '', targetYear: '', replayable: false, platinated: false });
             setIsEditing(false);
             setEditingId(null);
             setIsFormModalOpen(false);
@@ -187,7 +196,8 @@ function App() {
             imageUrl: game.imageUrl || '',
             description: game.description || '',
             targetYear: game.targetYear || '',
-            replayable: game.replayable || false
+            replayable: game.replayable || false,
+            platinated: game.platinated || false
         });
         setIsEditing(true);
         setEditingId(game.id);
@@ -195,7 +205,7 @@ function App() {
     };
 
     const handleCancelEdit = () => {
-        setForm({ title: '', platform: 'PC', pcStore: '', status: 'Backlog', rating: 0, imageUrl: '', description: '', targetYear: '', replayable: false });
+        setForm({ title: '', platform: 'PC', pcStore: '', status: 'Backlog', rating: 0, imageUrl: '', description: '', targetYear: '', replayable: false, platinated: false });
         setIsEditing(false);
         setEditingId(null);
         setIsFormModalOpen(false);
@@ -314,13 +324,25 @@ function App() {
     // Funciones de autenticación
     const handleLogin = () => {
         setIsAuthenticated(true);
+        // Guardar el estado de autenticación en localStorage
+        try {
+            localStorage.setItem('isAuthenticated', 'true');
+        } catch (error) {
+            console.warn('No se pudo guardar en localStorage:', error);
+        }
     };
 
     const handleLogout = () => {
         setIsAuthenticated(false);
+        // Limpiar el estado de autenticación de localStorage
+        try {
+            localStorage.removeItem('isAuthenticated');
+        } catch (error) {
+            console.warn('No se pudo limpiar localStorage:', error);
+        }
         // Limpiar datos al cerrar sesión
         setGames([]);
-        setForm({ title: '', platform: '', pcStore: '', status: '', rating: '', imageUrl: '', description: '', targetYear: '', replayable: false });
+        setForm({ title: '', platform: '', pcStore: '', status: '', rating: '', imageUrl: '', description: '', targetYear: '', replayable: false, platinated: false });
         setSelectedGame(null);
         setIsModalOpen(false);
         setIsEditing(false);
@@ -614,20 +636,35 @@ function App() {
                                     </select>
                                 </div>
 
-                                {/* Checkbox Rejugable - Solo aparece cuando está Completado */}
+                                {/* Checkboxes - Solo aparecen cuando está Completado */}
                                 {form.status === 'Completado' && (
-                                    <div className="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
-                                        <input
-                                            type="checkbox"
-                                            id="replayable"
-                                            className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-indigo-600 focus:ring-indigo-600 focus:ring-offset-gray-900"
-                                            checked={form.replayable}
-                                            onChange={(e) => setForm({ ...form, replayable: e.target.checked })}
-                                        />
-                                        <label htmlFor="replayable" className="text-sm font-medium text-gray-300 flex items-center gap-2">
-                                            🔄 Lo volvería a jugar
-                                            <span className="text-xs text-gray-400">(Marca si vale la pena rejugarlo)</span>
-                                        </label>
+                                    <div className="space-y-3">
+                                        <div className="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
+                                            <input
+                                                type="checkbox"
+                                                id="replayable"
+                                                className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-indigo-600 focus:ring-indigo-600 focus:ring-offset-gray-900"
+                                                checked={form.replayable}
+                                                onChange={(e) => setForm({ ...form, replayable: e.target.checked })}
+                                            />
+                                            <label htmlFor="replayable" className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                                                🔄 Lo volvería a jugar
+                                                <span className="text-xs text-gray-400">(Marca si vale la pena rejugarlo)</span>
+                                            </label>
+                                        </div>
+                                        <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg border border-yellow-500/30">
+                                            <input
+                                                type="checkbox"
+                                                id="platinated"
+                                                className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-yellow-500 focus:ring-yellow-500 focus:ring-offset-gray-900"
+                                                checked={form.platinated}
+                                                onChange={(e) => setForm({ ...form, platinated: e.target.checked })}
+                                            />
+                                            <label htmlFor="platinated" className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                                                🏆 Platinado / 100% Logros
+                                                <span className="text-xs text-gray-400">(Marca si conseguiste todos los logros/trofeos)</span>
+                                            </label>
+                                        </div>
                                     </div>
                                 )}
 
@@ -1087,6 +1124,25 @@ function App() {
                                     {new Date(selectedGame.createdAt).toLocaleDateString('es-ES')}
                                 </p>
                             </div>
+                            {selectedGame.status === 'Completado' && selectedGame.platinated && (
+                                <div className="col-span-2">
+                                    <div className="bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 border border-yellow-500/50 rounded-lg p-3 flex items-center gap-3">
+                                        <span className="text-2xl">🏆</span>
+                                        <div>
+                                            <p className="text-yellow-400 font-bold text-sm">¡JUEGO PLATINADO!</p>
+                                            <p className="text-yellow-200 text-xs">100% de logros/trofeos conseguidos</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            {selectedGame.status === 'Completado' && selectedGame.replayable && (
+                                <div className="col-span-2">
+                                    <div className="bg-purple-600/20 border border-purple-500/50 rounded-lg p-3 flex items-center gap-3">
+                                        <span className="text-xl">🔄</span>
+                                        <p className="text-purple-300 font-medium text-sm">Vale la pena rejugar</p>
+                                    </div>
+                                </div>
+                            )}
                             {selectedGame.targetYear && (
                                 <div className="col-span-2">
                                     <span className="text-gray-400">
