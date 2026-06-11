@@ -1,35 +1,36 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 
 const Login = ({ onLogin }) => {
     const [credentials, setCredentials] = useState({
-        username: '',
+        email: '',
         password: ''
     });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-
-    // Credenciales de prueba
-    const validCredentials = {
-        username: 'anfega',
-        password: '123456'
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
 
-        // Simular delay de autenticación
-        setTimeout(() => {
-            if (credentials.username === validCredentials.username && 
-                credentials.password === validCredentials.password) {
-                onLogin();
-            } else {
-                setError('Usuario o contraseña incorrectos');
-            }
+        try {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
+                email: credentials.email,
+                password: credentials.password
+            });
+
+            const token = res.data && (res.data.token || res.data.accessToken || res.data?.token);
+            if (!token) throw new Error('No se recibió token del servidor');
+
+            onLogin(token);
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || 'Error al iniciar sesión';
+            setError(msg);
+        } finally {
             setIsLoading(false);
-        }, 800);
+        }
     };
 
     const handleChange = (e) => {
@@ -63,12 +64,12 @@ const Login = ({ onLogin }) => {
                                 👤 Usuario
                             </label>
                             <input
-                                type="text"
-                                name="username"
-                                value={credentials.username}
+                                type="email"
+                                name="email"
+                                value={credentials.email}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 rounded-lg bg-white/10 border border-gray-300/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
-                                placeholder="Ingresa tu usuario"
+                                placeholder="Ingresa tu email"
                                 required
                             />
                         </div>
@@ -114,14 +115,7 @@ const Login = ({ onLogin }) => {
                         </button>
                     </form>
 
-                    {/* Credenciales de prueba */}
-                    <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                        <p className="text-yellow-200 text-sm font-medium mb-2">📝 Credenciales de prueba:</p>
-                        <div className="text-xs text-gray-300 space-y-1">
-                            <p><strong>Usuario:</strong> anfega</p>
-                            <p><strong>Contraseña:</strong> 123***</p>
-                        </div>
-                    </div>
+                    {/* Credenciales de prueba eliminadas — use su cuenta real */}
                 </div>
 
                 {/* Footer */}

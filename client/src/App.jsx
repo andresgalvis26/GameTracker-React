@@ -8,14 +8,11 @@ import Statistics from './components/Statistics';
 import Swal from 'sweetalert2';
 
 function App() {
-    // Estado de autenticación
+    // Estado de autenticación (persistente via token)
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        // Verificar si hay una sesión guardada en localStorage
         try {
-            const savedAuth = localStorage.getItem('isAuthenticated');
-            return savedAuth === 'true';
+            return !!localStorage.getItem('authToken');
         } catch (error) {
-            // Si localStorage no está disponible, retornar false
             console.warn('localStorage no disponible:', error);
             return false;
         }
@@ -52,10 +49,22 @@ function App() {
         setGames(res.data);
     };
 
-    // Cargar juegos al iniciar
+    // Inicializar axios Authorization si hay token
     useEffect(() => {
-        fetchGames();
+        try {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            }
+        } catch (error) {
+            console.warn('No se pudo inicializar token:', error);
+        }
     }, []);
+
+    // Cargar juegos cuando esté autenticado
+    useEffect(() => {
+        if (isAuthenticated) fetchGames();
+    }, [isAuthenticated]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -322,21 +331,22 @@ function App() {
     }, [filters, sortBy, sortOrder]);
 
     // Funciones de autenticación
-    const handleLogin = () => {
+    const handleLogin = (token) => {
         setIsAuthenticated(true);
-        // Guardar el estado de autenticación en localStorage
         try {
-            localStorage.setItem('isAuthenticated', 'true');
+            localStorage.setItem('authToken', token);
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         } catch (error) {
-            console.warn('No se pudo guardar en localStorage:', error);
+            console.warn('No se pudo guardar token en localStorage:', error);
         }
     };
 
     const handleLogout = () => {
         setIsAuthenticated(false);
-        // Limpiar el estado de autenticación de localStorage
+        // Limpiar token de localStorage y header
         try {
-            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('authToken');
+            delete axios.defaults.headers.common['Authorization'];
         } catch (error) {
             console.warn('No se pudo limpiar localStorage:', error);
         }
