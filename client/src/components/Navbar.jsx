@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
-const Navbar = ({ totalGames, gamesCompleted, gamesPlaying, gamesBacklog, theme, onToggleTheme, onLogout }) => {
+const Navbar = ({ totalGames, trackedTotal, gamesCompleted, gamesPlaying, gamesBacklog, theme, onToggleTheme, onLogout }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const getCompletionPercentage = () => {
-        if (totalGames === 0) return 0;
-        return Math.round((gamesCompleted / totalGames) * 100);
+        if (trackedTotal === 0) return 0;
+        return Math.round((gamesCompleted / trackedTotal) * 100);
     };
 
     return (
@@ -48,13 +48,13 @@ const Navbar = ({ totalGames, gamesCompleted, gamesPlaying, gamesBacklog, theme,
 
                             <div className="text-center">
                                 <div className="text-2xl font-bold text-orange-400">{gamesBacklog}</div>
-                                <div className="text-gray-400">Backlog</div>
+                                    <div className="text-gray-400">Backlog</div>
                             </div>
                         </div>
 
                         {/* Barra de progreso */}
                         <div className="flex flex-col items-center">
-                            <div className="text-xs text-gray-400 mb-1">Progreso</div>
+                            <div className="text-xs text-gray-400 mb-1">Progreso jugable</div>
                             <div className="flex items-center space-x-2">
                                 <div className="w-24 bg-gray-700 rounded-full h-2">
                                     <div
@@ -142,7 +142,7 @@ const Navbar = ({ totalGames, gamesCompleted, gamesPlaying, gamesBacklog, theme,
                             {/* Progreso móvil */}
                             <div className="p-3 bg-gray-800 rounded-lg mx-3">
                                 <div className="text-center">
-                                    <div className="text-sm text-gray-400 mb-2">Progreso de completación</div>
+                                    <div className="text-sm text-gray-400 mb-2">Progreso jugable</div>
                                     <div className="flex items-center justify-center space-x-3">
                                         <div className="flex-1 bg-gray-700 rounded-full h-3">
                                             <div
@@ -189,6 +189,7 @@ const Navbar = ({ totalGames, gamesCompleted, gamesPlaying, gamesBacklog, theme,
 
 Navbar.propTypes = {
     totalGames: PropTypes.number.isRequired,
+    trackedTotal: PropTypes.number.isRequired,
     gamesCompleted: PropTypes.number.isRequired,
     gamesPlaying: PropTypes.number.isRequired,
     gamesBacklog: PropTypes.number.isRequired,

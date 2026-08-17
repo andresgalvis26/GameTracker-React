@@ -3,11 +3,11 @@ export const STATUSES = ['Backlog', 'Jugando', 'Completado'];
 export const PC_STORES = ['Steam', 'Epic Games', 'GOG', 'Origin/EA', 'Ubisoft Connect', 'Battle.net', 'Microsoft Store', 'Game Pass', 'Itch.io', 'Otra'];
 
 export const EMPTY_FILTERS = {
-    status: '', platform: '', pcStore: '', minRating: '', maxRating: '', year: '', replayable: '', searchText: ''
+    status: '', platform: '', pcStore: '', minRating: '', maxRating: '', year: '', replayable: '', online: '', searchText: ''
 };
 
 export const EMPTY_FORM = {
-    title: '', platform: 'PC', pcStore: '', status: 'Backlog', rating: '', imageUrl: '', description: '', targetYear: '', replayable: false, platinated: false
+    title: '', platform: 'PC', pcStore: '', status: 'Backlog', rating: '', imageUrl: '', description: '', targetYear: '', replayable: false, platinated: false, isOnline: false
 };
 
 export const getGameTargetYear = (game) => game.targetYear || game.target_year || game.yearTarget || '';
@@ -22,5 +22,6 @@ export const gameToForm = (game) => ({
     description: game.description || '',
     targetYear: getGameTargetYear(game) ? String(getGameTargetYear(game)) : '',
     replayable: Boolean(game.replayable),
-    platinated: Boolean(game.platinated)
+    platinated: Boolean(game.platinated),
+    isOnline: Boolean(game.isOnline)
 });

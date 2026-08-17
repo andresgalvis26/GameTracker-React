@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
-import { EMPTY_FILTERS } from '../constants/gameOptions';
-import { getGameTargetYear } from '../constants/gameOptions';
+import { EMPTY_FILTERS, getGameTargetYear } from '../constants/gameOptions';
 
 export const useGameFilters = (games) => {
     const [filters, setFilters] = useState(EMPTY_FILTERS);
@@ -19,10 +18,14 @@ export const useGameFilters = (games) => {
         if (filters.year && String(getGameTargetYear(game)) !== filters.year) return false;
         if (filters.replayable === 'true' && (!game.replayable || game.status !== 'Completado')) return false;
         if (filters.replayable === 'false' && (game.replayable || game.status !== 'Completado')) return false;
-        return !search || game.title.toLowerCase().includes(search) || (game.description || '').toLowerCase().includes(search);
+        if (filters.online === 'true' && !game.isOnline) return false;
+        if (filters.online === 'false' && game.isOnline) return false;
+        const title = String(game.title || '');
+        const description = String(game.description || '');
+        return !search || title.toLowerCase().includes(search) || description.toLowerCase().includes(search);
     }).sort((a, b) => {
         const values = {
-            title: [a.title.toLowerCase(), b.title.toLowerCase()],
+            title: [String(a.title || '').toLowerCase(), String(b.title || '').toLowerCase()],
             rating: [a.rating || 0, b.rating || 0],
             platform: [a.platform, b.platform],
             status: [a.status, b.status],
@@ -47,5 +50,5 @@ export const useGameFilters = (games) => {
         setFilters(EMPTY_FILTERS); setSortBy('createdAt'); setSortOrder('desc'); setCurrentPage(1);
     };
 
-    return { filters, sortBy, sortOrder, page, totalPages, filteredGames, currentPageGames, updateFilters, clearFilters, setSortBy: (value) => { setSortBy(value); setCurrentPage(1); }, toggleSort: () => { setSortOrder((value) => value === 'asc' ? 'desc' : 'asc'); setCurrentPage(1); }, setCurrentPage };
+    return { games, filters, sortBy, sortOrder, page, totalPages, filteredGames, currentPageGames, updateFilters, clearFilters, setSortBy: (value) => { setSortBy(value); setCurrentPage(1); }, toggleSort: () => { setSortOrder((value) => value === 'asc' ? 'desc' : 'asc'); setCurrentPage(1); }, setCurrentPage };
 };

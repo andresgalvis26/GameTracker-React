@@ -62,6 +62,7 @@ StatCard.propTypes = {
 };
 
 const Statistics = ({ games }) => {
+    const trackableGames = games.filter((game) => !game.isOnline);
     // Colores para los gráficos
     const PLATFORM_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#EC4899'];
     const STATUS_COLORS = { Backlog: '#F59E0B', Jugando: '#10B981', Completado: '#3B82F6', 'Sin especificar': '#6B7280' };
@@ -186,15 +187,14 @@ const Statistics = ({ games }) => {
         .sort((a, b) => b.count - a.count);
 
     // Calcular estadísticas generales
-    const totalGames = games.length;
     const averageRating = games.filter(g => g.rating).reduce((sum, g) => sum + parseFloat(g.rating), 0) / games.filter(g => g.rating).length || 0;
-    const completionRate = games.filter(g => g.status === 'Completado').length / totalGames * 100;
-    const replayableGames = games.filter(g => g.replayable && g.status === 'Completado').length;
-    const totalCompletedGames = games.filter(g => g.status === 'Completado').length;
+    const completionRate = trackableGames.length ? trackableGames.filter(g => g.status === 'Completado').length / trackableGames.length * 100 : 0;
+    const replayableGames = trackableGames.filter(g => g.replayable && g.status === 'Completado').length;
+    const totalCompletedGames = trackableGames.filter(g => g.status === 'Completado').length;
     const replayabilityRate = totalCompletedGames > 0 ? (replayableGames / totalCompletedGames * 100) : 0;
     
     // Tiempo de backlog (estimación)
-    const backlogGames = games.filter(g => g.status === 'Backlog').length;
+    const backlogGames = trackableGames.filter(g => g.status === 'Backlog').length;
     const avgGamesPerMonth = last8Months.reduce((sum, month) => sum + month.games, 0) / 8;
     const estimatedBacklogMonths = avgGamesPerMonth > 0 ? Math.ceil(backlogGames / avgGamesPerMonth) : 0;
 
@@ -213,7 +213,7 @@ const Statistics = ({ games }) => {
                 <StatCard 
                     title="Tasa de Completado"
                     value={`${completionRate.toFixed(1)}%`}
-                    subtitle={`${games.filter(g => g.status === 'Completado').length} de ${totalGames} juegos`}
+                    subtitle={`${trackableGames.filter(g => g.status === 'Completado').length} de ${trackableGames.length} jugables`}
                     icon="✅"
                     gradient="bg-gradient-to-br from-green-500 to-emerald-600"
                 />
