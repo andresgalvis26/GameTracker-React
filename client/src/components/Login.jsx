@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
+import { authApi } from '../services/api';
 
 const Login = ({ onLogin }) => {
     const [credentials, setCredentials] = useState({
@@ -16,10 +16,7 @@ const Login = ({ onLogin }) => {
         setError('');
 
         try {
-            const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
-                email: credentials.email,
-                password: credentials.password
-            });
+            const res = await authApi.login(credentials);
 
             const token = res.data && (res.data.token || res.data.accessToken || res.data?.token);
             if (!token) throw new Error('No se recibió token del servidor');
@@ -60,11 +57,12 @@ const Login = ({ onLogin }) => {
                     
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
+                            <label htmlFor="login-email" className="block text-sm font-medium text-gray-200 mb-2">
                                 👤 Usuario
                             </label>
                             <input
                                 type="email"
+                                id="login-email"
                                 name="email"
                                 value={credentials.email}
                                 onChange={handleChange}
@@ -75,11 +73,12 @@ const Login = ({ onLogin }) => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-200 mb-2">
+                            <label htmlFor="login-password" className="block text-sm font-medium text-gray-200 mb-2">
                                 🔒 Contraseña
                             </label>
                             <input
                                 type="password"
+                                id="login-password"
                                 name="password"
                                 value={credentials.password}
                                 onChange={handleChange}

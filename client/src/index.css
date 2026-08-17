@@ -3,4 +3,68 @@
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+html {
+  color-scheme: dark;
+}
+
+html[data-theme='light'] {
+  color-scheme: light;
+}
+
+html[data-theme='light'] body {
+  background: #f5f7fb;
+  color: #0f172a;
+}
+
+html[data-theme='light'] .bg-gray-950 { background-color: #f5f7fb; }
+html[data-theme='light'] .bg-gray-900 { background-color: #ffffff; }
+html[data-theme='light'] .bg-gray-800 { background-color: #ffffff; }
+html[data-theme='light'] .bg-gray-700 { background-color: #eef2f7; }
+html[data-theme='light'] .bg-gray-600 { background-color: #e2e8f0; }
+html[data-theme='light'] .border-gray-800 { border-color: #e2e8f0; }
+html[data-theme='light'] .border-gray-700 { border-color: #d7dee9; }
+html[data-theme='light'] .border-gray-600 { border-color: #cbd5e1; }
+html[data-theme='light'] .text-white { color: #0f172a; }
+html[data-theme='light'] .bg-blue-600.text-white,
+html[data-theme='light'] .bg-blue-500.text-white,
+html[data-theme='light'] .bg-emerald-500.text-white,
+html[data-theme='light'] .bg-purple-500.text-white { color: #ffffff; }
+html[data-theme='light'] .bg-gray-800 .text-white,
+html[data-theme='light'] .bg-gray-900 .text-white { color: #0f172a; }
+html[data-theme='light'] .bg-blue-600,
+html[data-theme='light'] .bg-blue-500 { color: #ffffff; }
+html[data-theme='light'] .text-gray-300 { color: #334155; }
+html[data-theme='light'] .text-gray-400,
+html[data-theme='light'] .text-gray-500 { color: #64748b; }
+html[data-theme='light'] .placeholder\:text-gray-500::placeholder { color: #94a3b8; }
+html[data-theme='light'] input,
+html[data-theme='light'] select,
+html[data-theme='light'] textarea { color: #0f172a; }
+html[data-theme='light'] .game-card { box-shadow: 0 12px 30px rgb(15 23 42 / 0.08); }
+html[data-theme='light'] .shadow-black\/10 { --tw-shadow-color: rgb(15 23 42 / 0.08); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
 }

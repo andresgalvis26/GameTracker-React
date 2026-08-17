@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import {
-    PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, 
-    Tooltip, Legend, ResponsiveContainer, LineChart, Line, Area, AreaChart,
-    RadialBarChart, RadialBar
+    PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+    Tooltip, ResponsiveContainer, Area, AreaChart
 } from 'recharts';
 
 // Tooltip personalizado
@@ -65,7 +64,7 @@ StatCard.propTypes = {
 const Statistics = ({ games }) => {
     // Colores para los gráficos
     const PLATFORM_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316', '#06B6D4', '#EC4899'];
-    const STATUS_COLORS = ['#F59E0B', '#10B981', '#6B7280'];
+    const STATUS_COLORS = { Backlog: '#F59E0B', Jugando: '#10B981', Completado: '#3B82F6', 'Sin especificar': '#6B7280' };
     const RATING_COLORS = ['#EF4444', '#F97316', '#F59E0B', '#84CC16', '#10B981'];
 
     // Calcular datos para gráfico de plataformas
@@ -278,7 +277,7 @@ const Statistics = ({ games }) => {
                             <Tooltip content={<CustomTooltip />} />
                             <Bar dataKey="count" radius={[8, 8, 0, 0]} fill="#3B82F6">
                                 {statusChartData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={STATUS_COLORS[index]} />
+                                    <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.name] || '#6B7280'} />
                                 ))}
                             </Bar>
                         </BarChart>
@@ -462,4 +461,4 @@ Statistics.propTypes = {
     games: PropTypes.array.isRequired,
 };
 
-export default Statistics;
+export default memo(Statistics);

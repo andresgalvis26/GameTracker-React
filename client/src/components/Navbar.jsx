@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
-const Navbar = ({ totalGames, gamesCompleted, gamesPlaying, gamesBacklog, onLogout }) => {
+const Navbar = ({ totalGames, gamesCompleted, gamesPlaying, gamesBacklog, theme, onToggleTheme, onLogout }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const getCompletionPercentage = () => {
@@ -74,6 +74,9 @@ const Navbar = ({ totalGames, gamesCompleted, gamesPlaying, gamesBacklog, onLogo
                         <button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                             className="text-gray-400 hover:text-white focus:outline-none focus:text-white p-2"
+                            aria-expanded={isMenuOpen}
+                            aria-controls="mobile-menu"
+                            aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
                         >
                             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 {isMenuOpen ? (
@@ -86,7 +89,8 @@ const Navbar = ({ totalGames, gamesCompleted, gamesPlaying, gamesBacklog, onLogo
                     </div>
 
                     {/* Acciones del lado derecho (solo desktop) */}
-                    <div className="hidden md:flex items-center space-x-4">
+                    <div className="hidden md:flex items-center space-x-3">
+                        <button type="button" onClick={onToggleTheme} className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-300 hover:border-blue-400 hover:text-white" aria-label={theme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'} title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}>{theme === 'dark' ? '☀️' : '🌙'}</button>
                         <div className="text-right">
                             <div className="text-sm text-gray-400">¡Sigue jugando!</div>
                             <div className="text-xs text-gray-500">
@@ -113,7 +117,7 @@ const Navbar = ({ totalGames, gamesCompleted, gamesPlaying, gamesBacklog, onLogo
 
                 {/* Menú móvil expandible */}
                 {isMenuOpen && (
-                    <div className="md:hidden">
+                    <div id="mobile-menu" className="md:hidden">
                         <div className="px-2 pt-2 pb-3 space-y-1 bg-gray-900 rounded-lg mt-2">
                             {/* Estadísticas móviles */}
                             <div className="grid grid-cols-2 gap-4 p-3">
@@ -158,6 +162,15 @@ const Navbar = ({ totalGames, gamesCompleted, gamesPlaying, gamesBacklog, onLogo
                                 <button
                                     onClick={() => {
                                         setIsMenuOpen(false);
+                                        onToggleTheme();
+                                    }}
+                                    className="mb-3 w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-gray-300"
+                                >
+                                    {theme === 'dark' ? '☀️ Activar modo claro' : '🌙 Activar modo oscuro'}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setIsMenuOpen(false);
                                         onLogout();
                                     }}
                                     className="w-full bg-red-600 hover:bg-red-500 text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
@@ -179,6 +192,8 @@ Navbar.propTypes = {
     gamesCompleted: PropTypes.number.isRequired,
     gamesPlaying: PropTypes.number.isRequired,
     gamesBacklog: PropTypes.number.isRequired,
+    theme: PropTypes.oneOf(['dark', 'light']).isRequired,
+    onToggleTheme: PropTypes.func.isRequired,
     onLogout: PropTypes.func.isRequired,
 };
 
