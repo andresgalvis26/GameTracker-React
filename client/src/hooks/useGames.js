@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { gamesApi } from '../services/api';
 
-const getErrorMessage = (error, fallback) => error.response?.data?.message || fallback;
+const getErrorMessage = (error, fallback) => error.response?.data?.mensaje || error.response?.data?.message || fallback;
 
 export const useGames = (isAuthenticated) => {
     const [games, setGames] = useState([]);
@@ -38,13 +38,15 @@ export const useGames = (isAuthenticated) => {
         try { return (await request()).data; } finally { setIsSaving(false); }
     };
 
-    const createGame = async (game) => {
-        const created = await save(() => gamesApi.create(game));
+    const createGame = async (game, file) => {
+        let created = await save(() => gamesApi.create(game));
+        if (file) created = await save(() => gamesApi.uploadImage(created.id, file));
         setGames((current) => [created, ...current]);
     };
 
-    const updateGame = async (id, game) => {
-        const updated = await save(() => gamesApi.update(id, game));
+    const updateGame = async (id, game, file) => {
+        let updated = await save(() => gamesApi.update(id, game));
+        if (file) updated = await save(() => gamesApi.uploadImage(id, file));
         setGames((current) => current.map((item) => item.id === id ? updated : item));
     };
 

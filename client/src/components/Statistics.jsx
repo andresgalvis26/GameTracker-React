@@ -24,19 +24,19 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 // Componente para estadística destacada
 const StatCard = ({ title, value, subtitle, icon, gradient, trend }) => (
-    <div className={`${gradient} rounded-xl p-6 text-white relative overflow-hidden`}>
+    <div className={`${gradient} rounded-xl p-6 text-always-white relative overflow-hidden`}>
         <div className="relative z-10">
             <div className="flex items-center justify-between mb-2">
                 <div>
-                    <p className="text-white/80 text-sm font-medium">{title}</p>
+                    <p className="text-always-white opacity-80 text-sm font-medium">{title}</p>
                     <p className="text-3xl font-bold">{value}</p>
-                    {subtitle && <p className="text-white/70 text-sm">{subtitle}</p>}
+                    {subtitle && <p className="text-always-white opacity-70 text-sm">{subtitle}</p>}
                 </div>
                 <div className="text-4xl opacity-80">{icon}</div>
             </div>
             {trend && (
                 <div className="mt-3">
-                    <p className="text-white/80 text-xs">{trend}</p>
+                    <p className="text-always-white opacity-80 text-xs">{trend}</p>
                 </div>
             )}
         </div>
@@ -197,11 +197,13 @@ const Statistics = ({ games }) => {
     const backlogGames = trackableGames.filter(g => g.status === 'Backlog').length;
     const avgGamesPerMonth = last8Months.reduce((sum, month) => sum + month.games, 0) / 8;
     const estimatedBacklogMonths = avgGamesPerMonth > 0 ? Math.ceil(backlogGames / avgGamesPerMonth) : 0;
+    const totalHours = games.reduce((sum, game) => sum + (Number(game.hoursPlayed) || 0), 0);
+    const gamesWithHours = games.filter((game) => Number(game.hoursPlayed) > 0).length;
 
     return (
         <div className="space-y-8">
             {/* Estadísticas Principales */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 <StatCard 
                     title="Promedio General"
                     value={`${averageRating.toFixed(1)}/10`}
@@ -233,6 +235,13 @@ const Statistics = ({ games }) => {
                     icon="📚"
                     gradient="bg-gradient-to-br from-blue-500 to-cyan-600"
                     trend={avgGamesPerMonth > 0 ? `${avgGamesPerMonth.toFixed(1)} juegos/mes promedio` : 'Sin datos suficientes'}
+                />
+                <StatCard 
+                    title="Horas jugadas"
+                    value={`${totalHours.toFixed(totalHours % 1 ? 1 : 0)} h`}
+                    subtitle={gamesWithHours > 0 ? `En ${gamesWithHours} juegos con registro` : 'Sin horas registradas'}
+                    icon="⏱️"
+                    gradient="bg-gradient-to-br from-slate-500 to-slate-700"
                 />
             </div>
 
@@ -271,9 +280,9 @@ const Statistics = ({ games }) => {
                     </h3>
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={statusChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                            <XAxis dataKey="name" tick={{ fill: '#9CA3AF', fontSize: 12 }} />
-                            <YAxis tick={{ fill: '#9CA3AF', fontSize: 12 }} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+                            <XAxis dataKey="name" tick={{ fill: 'var(--chart-tick)', fontSize: 12 }} />
+                            <YAxis tick={{ fill: 'var(--chart-tick)', fontSize: 12 }} />
                             <Tooltip content={<CustomTooltip />} />
                             <Bar dataKey="count" radius={[8, 8, 0, 0]} fill="#3B82F6">
                                 {statusChartData.map((entry, index) => (
@@ -295,9 +304,9 @@ const Statistics = ({ games }) => {
                         </h3>
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={ratingDistributionData} layout="horizontal">
-                                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                                <XAxis type="number" tick={{ fill: '#9CA3AF', fontSize: 12 }} />
-                                <YAxis dataKey="range" type="category" tick={{ fill: '#9CA3AF', fontSize: 12 }} />
+                                <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+                                <XAxis type="number" tick={{ fill: 'var(--chart-tick)', fontSize: 12 }} />
+                                <YAxis dataKey="range" type="category" tick={{ fill: 'var(--chart-tick)', fontSize: 12 }} />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Bar dataKey="count" fill="#F59E0B" radius={[0, 4, 4, 0]}>
                                     {ratingDistributionData.map((entry, index) => (
@@ -322,9 +331,9 @@ const Statistics = ({ games }) => {
                                     <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.1}/>
                                 </linearGradient>
                             </defs>
-                            <XAxis dataKey="month" tick={{ fill: '#9CA3AF', fontSize: 11 }} />
-                            <YAxis tick={{ fill: '#9CA3AF', fontSize: 12 }} />
-                            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                            <XAxis dataKey="month" tick={{ fill: 'var(--chart-tick)', fontSize: 11 }} />
+                            <YAxis tick={{ fill: 'var(--chart-tick)', fontSize: 12 }} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
                             <Tooltip content={<CustomTooltip />} />
                             <Area 
                                 type="monotone" 
@@ -349,9 +358,9 @@ const Statistics = ({ games }) => {
                         </h3>
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={ratingChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                                <XAxis dataKey="platform" tick={{ fill: '#9CA3AF', fontSize: 12 }} />
-                                <YAxis domain={[0, 10]} tick={{ fill: '#9CA3AF', fontSize: 12 }} />
+                                <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+                                <XAxis dataKey="platform" tick={{ fill: 'var(--chart-tick)', fontSize: 12 }} />
+                                <YAxis domain={[0, 10]} tick={{ fill: 'var(--chart-tick)', fontSize: 12 }} />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Bar dataKey="rating" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
                             </BarChart>
@@ -395,7 +404,7 @@ const Statistics = ({ games }) => {
                     </h3>
                     <div className="space-y-4">
                         {topRatedGames.map((game, index) => (
-                            <div key={index} className="flex items-center justify-between bg-gradient-to-r from-gray-700 to-gray-600 rounded-lg p-4 hover:from-gray-600 hover:to-gray-500 transition-colors">
+                            <div key={index} className="flex items-center justify-between rounded-lg border border-gray-600 bg-gray-700 p-4 transition hover:border-blue-400/40">
                                 <div className="flex items-center gap-4">
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg ${
                                         index === 0 ? 'bg-gradient-to-r from-yellow-400 to-yellow-600' : 
@@ -405,7 +414,7 @@ const Statistics = ({ games }) => {
                                         {index + 1}
                                     </div>
                                     <div>
-                                        <p className="text-white font-semibold" title={game.fullTitle}>{game.title}</p>
+                                        <p className="text-always-white font-semibold" title={game.fullTitle}>{game.title}</p>
                                         <p className="text-gray-300 text-sm flex items-center gap-2">
                                             <span className="bg-gray-600 px-2 py-1 rounded text-xs">{game.platform}</span>
                                         </p>
@@ -413,7 +422,7 @@ const Statistics = ({ games }) => {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className="text-yellow-400 text-lg">⭐</span>
-                                    <span className="text-white font-bold text-xl">{game.rating}</span>
+                                    <span className="text-always-white font-bold text-xl">{game.rating}</span>
                                     <span className="text-gray-400">/10</span>
                                 </div>
                             </div>
@@ -424,7 +433,7 @@ const Statistics = ({ games }) => {
 
             {/* Insights y recomendaciones */}
             <div className="bg-gradient-to-r from-indigo-900 to-purple-900 rounded-xl p-6 border border-indigo-700">
-                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <h3 className="text-xl font-bold text-always-white mb-4 flex items-center gap-2">
                     💡 Insights de tu Colección
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

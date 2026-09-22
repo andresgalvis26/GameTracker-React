@@ -1,6 +1,6 @@
 import { getGameTargetYear } from '../constants/gameOptions';
 
-const EXPORT_FIELDS = ['title', 'platform', 'pcStore', 'status', 'rating', 'imageUrl', 'description', 'targetYear', 'replayable', 'platinated', 'isOnline', 'createdAt'];
+const EXPORT_FIELDS = ['title', 'platform', 'pcStore', 'status', 'rating', 'imageUrl', 'description', 'targetYear', 'replayable', 'platinated', 'isOnline', 'wishlist', 'hoursPlayed', 'genres', 'createdAt'];
 
 const timestamp = () => new Date().toISOString().slice(0, 10);
 
@@ -14,7 +14,13 @@ const download = (content, fileName, type) => {
     URL.revokeObjectURL(url);
 };
 
-const exportableGame = (game) => ({ ...Object.fromEntries(EXPORT_FIELDS.map((field) => [field, game[field] ?? null])), targetYear: getGameTargetYear(game) || null });
+const exportableGame = (game) => ({
+    ...Object.fromEntries(EXPORT_FIELDS.map((field) => [field, game[field] ?? null])),
+    targetYear: getGameTargetYear(game) || null,
+    wishlist: Boolean(game.wishlist),
+    hoursPlayed: game.hoursPlayed === null || game.hoursPlayed === undefined || game.hoursPlayed === '' ? null : Number(game.hoursPlayed),
+    genres: Array.isArray(game.genres) ? game.genres : []
+});
 
 export const exportJson = (games) => {
     const payload = { version: 1, exportedAt: new Date().toISOString(), games: games.map(exportableGame) };
@@ -49,6 +55,9 @@ export const parseImportFile = async (file) => {
         targetYear: (game.targetYear ?? game.target_year) === null || (game.targetYear ?? game.target_year) === '' ? null : Number(game.targetYear ?? game.target_year),
         replayable: Boolean(game.replayable),
         platinated: Boolean(game.platinated),
-        isOnline: Boolean(game.isOnline ?? game.is_online ?? game.online)
+        isOnline: Boolean(game.isOnline ?? game.is_online ?? game.online),
+        wishlist: Boolean(game.wishlist),
+        hoursPlayed: game.hoursPlayed === null || game.hoursPlayed === undefined || game.hoursPlayed === '' ? null : Number(game.hoursPlayed),
+        genres: Array.isArray(game.genres) ? game.genres.filter(Boolean) : []
     }));
 };

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { EMPTY_FILTERS, getGameTargetYear } from '../constants/gameOptions';
+import { normalizeText } from '../utils/search';
 
 export const useGameFilters = (games) => {
     const [filters, setFilters] = useState(EMPTY_FILTERS);
@@ -9,7 +10,7 @@ export const useGameFilters = (games) => {
     const itemsPerPage = 12;
 
     const filteredGames = useMemo(() => games.filter((game) => {
-        const search = filters.searchText.trim().toLowerCase();
+        const search = normalizeText(filters.searchText);
         if (filters.status && game.status !== filters.status) return false;
         if (filters.platform && game.platform !== filters.platform) return false;
         if (filters.pcStore && game.pcStore !== filters.pcStore) return false;
@@ -20,9 +21,17 @@ export const useGameFilters = (games) => {
         if (filters.replayable === 'false' && (game.replayable || game.status !== 'Completado')) return false;
         if (filters.online === 'true' && !game.isOnline) return false;
         if (filters.online === 'false' && game.isOnline) return false;
-        const title = String(game.title || '');
-        const description = String(game.description || '');
-        return !search || title.toLowerCase().includes(search) || description.toLowerCase().includes(search);
+        if (filters.wishlist === 'true' && !game.wishlist) return false;
+        if (filters.wishlist === 'false' && game.wishlist) return false;
+        if (filters.genre && !(Array.isArray(game.genres) && game.genres.includes(filters.genre))) return false;
+        const haystack = normalizeText([
+            game.title,
+            game.description,
+            game.platform,
+            game.pcStore,
+            ...(Array.isArray(game.genres) ? game.genres : [])
+        ].filter(Boolean).join(' '));
+        return !search || haystack.includes(search);
     }).sort((a, b) => {
         const values = {
             title: [String(a.title || '').toLowerCase(), String(b.title || '').toLowerCase()],

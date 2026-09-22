@@ -9,6 +9,13 @@ const DataTools = ({ games, filteredGames }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isImporting, setIsImporting] = useState(false);
 
+    const alertSkin = () => {
+        const light = document.documentElement.dataset.theme === 'light';
+        return light
+            ? { background: '#ffffff', color: '#0f172a' }
+            : { background: '#1f2937', color: '#f9fafb' };
+    };
+
     const importFile = async (event) => {
         const [file] = event.target.files;
         event.target.value = '';
@@ -16,13 +23,13 @@ const DataTools = ({ games, filteredGames }) => {
         setIsImporting(true);
         try {
             const importedGames = await parseImportFile(file);
-            const confirmation = await Swal.fire({ title: '¿Importar colección?', text: `Se añadirán ${importedGames.length} juegos a tu colección. Los existentes no se modificarán.`, icon: 'question', showCancelButton: true, confirmButtonText: 'Importar', cancelButtonText: 'Cancelar', background: '#1f2937', color: '#f9fafb' });
+            const confirmation = await Swal.fire({ title: '¿Importar colección?', text: `Se añadirán ${importedGames.length} juegos a tu colección. Los existentes no se modificarán.`, icon: 'question', showCancelButton: true, confirmButtonText: 'Importar', cancelButtonText: 'Cancelar', ...alertSkin() });
             if (!confirmation.isConfirmed) return;
             for (const game of importedGames) await gamesApi.create(game);
-            await Swal.fire({ title: 'Importación completada', text: `${importedGames.length} juegos añadidos.`, icon: 'success', timer: 1600, showConfirmButton: false, background: '#1f2937', color: '#f9fafb' });
+            await Swal.fire({ title: 'Importación completada', text: `${importedGames.length} juegos añadidos.`, icon: 'success', timer: 1600, showConfirmButton: false, ...alertSkin() });
             window.location.reload();
         } catch (error) {
-            await Swal.fire({ title: 'No se pudo importar', text: error.message || 'Comprueba el archivo y vuelve a intentarlo.', icon: 'error', background: '#1f2937', color: '#f9fafb' });
+            await Swal.fire({ title: 'No se pudo importar', text: error.message || 'Comprueba el archivo y vuelve a intentarlo.', icon: 'error', ...alertSkin() });
         } finally {
             setIsImporting(false);
         }
