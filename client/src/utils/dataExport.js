@@ -1,6 +1,6 @@
-import { getGameTargetYear } from '../constants/gameOptions';
+import { getGameProgress, getGameTargetYear } from '../constants/gameOptions';
 
-const EXPORT_FIELDS = ['title', 'platform', 'pcStore', 'status', 'rating', 'imageUrl', 'description', 'targetYear', 'replayable', 'platinated', 'isOnline', 'wishlist', 'hoursPlayed', 'genres', 'createdAt'];
+const EXPORT_FIELDS = ['title', 'platform', 'pcStore', 'status', 'rating', 'imageUrl', 'description', 'targetYear', 'replayable', 'platinated', 'isOnline', 'wishlist', 'hoursPlayed', 'genres', 'progress', 'createdAt'];
 
 const timestamp = () => new Date().toISOString().slice(0, 10);
 
@@ -19,7 +19,8 @@ const exportableGame = (game) => ({
     targetYear: getGameTargetYear(game) || null,
     wishlist: Boolean(game.wishlist),
     hoursPlayed: game.hoursPlayed === null || game.hoursPlayed === undefined || game.hoursPlayed === '' ? null : Number(game.hoursPlayed),
-    genres: Array.isArray(game.genres) ? game.genres : []
+    genres: Array.isArray(game.genres) ? game.genres : [],
+    progress: getGameProgress(game)
 });
 
 export const exportJson = (games) => {
@@ -58,6 +59,7 @@ export const parseImportFile = async (file) => {
         isOnline: Boolean(game.isOnline ?? game.is_online ?? game.online),
         wishlist: Boolean(game.wishlist),
         hoursPlayed: game.hoursPlayed === null || game.hoursPlayed === undefined || game.hoursPlayed === '' ? null : Number(game.hoursPlayed),
-        genres: Array.isArray(game.genres) ? game.genres.filter(Boolean) : []
+        genres: Array.isArray(game.genres) ? game.genres.filter(Boolean) : [],
+        progress: getGameProgress(game)
     }));
 };

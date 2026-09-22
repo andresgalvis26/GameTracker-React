@@ -8,10 +8,19 @@ export const EMPTY_FILTERS = {
 };
 
 export const EMPTY_FORM = {
-    title: '', platform: 'PC', pcStore: '', status: 'Backlog', rating: '', imageUrl: '', imageKey: '', coverFile: null, description: '', targetYear: '', replayable: false, platinated: false, isOnline: false, wishlist: false, hoursPlayed: '', genres: []
+    title: '', platform: 'PC', pcStore: '', status: 'Backlog', rating: '', imageUrl: '', imageKey: '', coverFile: null, description: '', targetYear: '', replayable: false, platinated: false, isOnline: false, wishlist: false, hoursPlayed: '', genres: [], progress: ''
 };
 
 export const getGameTargetYear = (game) => game.targetYear || game.target_year || game.yearTarget || '';
+
+// El backend envía `progress` como entero 0–100. Devuelve null si no hay dato.
+export const getGameProgress = (game) => {
+    const raw = game?.progress ?? game?.Progress;
+    if (raw === null || raw === undefined || raw === '') return null;
+    const value = Number(raw);
+    if (!Number.isFinite(value)) return null;
+    return Math.max(0, Math.min(100, Math.round(value)));
+};
 
 export const gameToForm = (game) => ({
     title: game.title,
@@ -29,7 +38,8 @@ export const gameToForm = (game) => ({
     isOnline: Boolean(game.isOnline),
     wishlist: Boolean(game.wishlist),
     hoursPlayed: game.hoursPlayed === null || game.hoursPlayed === undefined || game.hoursPlayed === '' ? '' : String(game.hoursPlayed),
-    genres: Array.isArray(game.genres) ? game.genres.filter(Boolean) : []
+    genres: Array.isArray(game.genres) ? game.genres.filter(Boolean) : [],
+    progress: getGameProgress(game) === null ? '' : String(getGameProgress(game))
 });
 
 export const pickRandomGame = (games, excludeId = null) => {

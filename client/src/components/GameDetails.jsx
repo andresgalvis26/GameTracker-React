@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { getGameTargetYear } from '../constants/gameOptions';
+import { getGameProgress, getGameTargetYear } from '../constants/gameOptions';
 
 const statusStyles = {
     Backlog: 'border-amber-400/30 bg-amber-400/10 text-amber-200',
@@ -10,6 +10,7 @@ const statusStyles = {
 const GameDetails = ({ game, onEdit, onClose }) => {
     const hasRating = game.rating !== null && game.rating !== undefined && Number(game.rating) > 0;
     const targetYear = getGameTargetYear(game);
+    const progress = getGameProgress(game);
     const statusClass = statusStyles[game.status] || 'border-gray-600 bg-gray-700 text-gray-200';
 
     return <div className="bg-gray-900">
@@ -27,6 +28,10 @@ const GameDetails = ({ game, onEdit, onClose }) => {
                         <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-gray-400">Tu puntuación</p><p className="mt-1 text-4xl font-black text-always-yellow">{hasRating ? Number(game.rating).toFixed(1) : '—'}<span className="ml-1 text-base font-medium text-gray-400">/10</span></p></div>
                         <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-gray-400">{game.isOnline ? 'Tipo' : game.status === 'Completado' ? 'Completado' : 'Objetivo'}</p><p className={`mt-1 text-2xl font-bold ${game.isOnline ? 'text-always-cyan' : targetYear ? 'text-always-white' : 'text-gray-400'}`}>{game.isOnline ? 'Online' : targetYear || 'Sin definir'}</p></div>
                     </div>
+                    {progress !== null && <div className="mt-6 max-w-md">
+                        <div className="flex items-center justify-between text-xs font-bold uppercase tracking-[0.18em] text-gray-400"><span>Progreso</span><span className="text-always-white">{progress}%</span></div>
+                        <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-blue-400 to-purple-500 transition-all duration-500" style={{ width: `${progress}%` }} /></div>
+                    </div>}
                 </div>
             </div>
         </div>
@@ -34,7 +39,7 @@ const GameDetails = ({ game, onEdit, onClose }) => {
         <div className="space-y-6 p-5 sm:p-8">
             {(game.status === 'Completado' && (game.platinated || game.replayable)) && <section><SectionTitle eyebrow="Logros personales" title="Tu experiencia" /><div className="grid gap-3 sm:grid-cols-2">{game.platinated && <Highlight icon="🏆" title="Juego platinado" text="Conseguiste el 100% de los logros o trofeos." tone="yellow" />}{game.replayable && <Highlight icon="🔄" title="Vale la pena rejugar" text="Lo volverías a jugar en el futuro." tone="purple" />}</div></section>}
             <section><SectionTitle eyebrow="Notas" title="Sobre este juego" />{game.description ? <p className="whitespace-pre-wrap rounded-xl border border-gray-700 bg-gray-800/70 p-5 text-sm leading-7 text-gray-300">{game.description}</p> : <div className="rounded-xl border border-dashed border-gray-700 bg-gray-800/40 p-6 text-center text-sm italic text-gray-500">Todavía no has añadido una descripción.</div>}</section>
-            <section><SectionTitle eyebrow="Resumen" title="Información del juego" /><div className="grid grid-cols-2 gap-3 sm:grid-cols-4"><Info label="Estado" value={game.status} /><Info label="Tipo" value={game.isOnline ? 'Online' : 'Local / campaña'} /><Info label="Rating" value={hasRating ? `${Number(game.rating).toFixed(1)} / 10` : 'Sin puntuar'} /><Info label="Horas" value={Number(game.hoursPlayed) > 0 ? `${Number(game.hoursPlayed)} h` : 'Sin registrar'} /><Info label={game.isOnline ? 'Seguimiento' : game.status === 'Completado' ? 'Año completado' : 'Año objetivo'} value={game.isOnline ? 'Excluido del progreso' : targetYear ? String(targetYear) : 'Sin definir'} />{Array.isArray(game.genres) && game.genres.length > 0 && <div className="col-span-2 sm:col-span-4"><p className="text-xs text-gray-500">Géneros</p><div className="mt-1.5 flex flex-wrap gap-1.5">{game.genres.map((genre) => <span key={genre} className="rounded-full border border-gray-700 bg-gray-800 px-2.5 py-1 text-xs font-medium text-gray-300">{genre}</span>)}</div></div>}</div></section>
+            <section><SectionTitle eyebrow="Resumen" title="Información del juego" /><div className="grid grid-cols-2 gap-3 sm:grid-cols-4"><Info label="Estado" value={game.status} /><Info label="Tipo" value={game.isOnline ? 'Online' : 'Local / campaña'} /><Info label="Rating" value={hasRating ? `${Number(game.rating).toFixed(1)} / 10` : 'Sin puntuar'} /><Info label="Horas" value={Number(game.hoursPlayed) > 0 ? `${Number(game.hoursPlayed)} h` : 'Sin registrar'} /><Info label="Progreso" value={progress !== null ? `${progress}%` : 'Sin registrar'} /><Info label={game.isOnline ? 'Seguimiento' : game.status === 'Completado' ? 'Año completado' : 'Año objetivo'} value={game.isOnline ? 'Excluido del progreso' : targetYear ? String(targetYear) : 'Sin definir'} />{Array.isArray(game.genres) && game.genres.length > 0 && <div className="col-span-2 sm:col-span-4"><p className="text-xs text-gray-500">Géneros</p><div className="mt-1.5 flex flex-wrap gap-1.5">{game.genres.map((genre) => <span key={genre} className="rounded-full border border-gray-700 bg-gray-800 px-2.5 py-1 text-xs font-medium text-gray-300">{genre}</span>)}</div></div>}</div></section>
             <div className="flex flex-col-reverse gap-3 border-t border-gray-800 pt-6 sm:flex-row sm:justify-end"><button type="button" onClick={onClose} className="rounded-lg border border-gray-700 px-5 py-3 text-sm font-semibold text-gray-300 transition hover:bg-gray-800 hover:text-white">Cerrar</button><button type="button" onClick={() => onEdit(game)} className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-500">Editar juego</button></div>
         </div>
     </div>;

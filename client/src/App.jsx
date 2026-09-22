@@ -103,7 +103,8 @@ function App() {
             targetYear: form.targetYear === '' ? null : Number(form.targetYear),
             hoursPlayed: form.hoursPlayed === '' ? null : Number(form.hoursPlayed),
             wishlist: Boolean(form.wishlist),
-            genres: Array.isArray(form.genres) ? form.genres : []
+            genres: Array.isArray(form.genres) ? form.genres : [],
+            progress: form.progress === '' ? null : Math.max(0, Math.min(100, Number(form.progress)))
         };
         try {
             if (editingId) await updateGame(editingId, payload, coverFile); else await createGame(payload, coverFile);
